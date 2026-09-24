@@ -1,0 +1,59 @@
+name: Student Feedback CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check Project Files
+        run: |
+          test -f index.html
+          test -f style.css
+          test -f script.js
+
+      - name: Build Website
+        run: |
+          mkdir build
+          cp index.html build/
+          cp style.css build/
+          cp script.js build/
+
+      - name: Upload Website Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+
+      - name: Deploy Website
+        id: deployment
+        uses: actions/deploy-pages@v4
