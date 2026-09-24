@@ -13,15 +13,13 @@ permissions:
   id-token: write
 
 jobs:
-
   build:
     name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check Project Files
         run: |
@@ -29,23 +27,17 @@ jobs:
           test -f style.css
           test -f script.js
 
-      - name: Build Website
-        run: |
-          mkdir build
-          cp index.html build/
-          cp style.css build/
-          cp script.js build/
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
 
-      - name: Upload Website Artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload Website
+        uses: actions/upload-pages-artifact@v4
         with:
-          path: build
-
+          path: .
 
   deploy:
     name: Deploy to GitHub Pages
     needs: build
-
     runs-on: ubuntu-latest
 
     environment:
@@ -53,7 +45,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-
       - name: Deploy Website
         id: deployment
         uses: actions/deploy-pages@v4
